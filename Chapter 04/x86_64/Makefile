@@ -1,8 +1,9 @@
-ASFLAGS=-gstabs
-all: exit maximum
+ASFLAGS=-gstabs#-32
+LDLIBS=#-m elf_i386
+all: power factorial
 
 % : %.s
-
+% : %.S
 # the default rule calls $(CC) but that's not what we want right now
 # so this empty rule will cancel the default.
 
@@ -10,10 +11,10 @@ all: exit maximum
 	$(AS) -o $@ $< $(ASFLAGS)
 
 % : %.o
-	$(LD) -o $@ $<
+	$(LD) -o $@ $< $(LDLIBS)
 
 
 clean:
-	-rm -rf exit.o exit maximum.o maximum
+	-rm -rf power *.o
 
 .PHONEY: clean all
