@@ -36,6 +36,7 @@ Here are some small examples I would have enjoyed doing. (So I did them)
 	numargs.s	- introduces the number of arguments, argc
 	strlen.s	- returns the length of a c-style string
 	args.s		- prints out all the command line arguments argv
+	cat.s		- will echo the contens of a text file
 
 
 Chapter 5

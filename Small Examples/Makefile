@@ -1,7 +1,7 @@
 ASFLAGS=-gstabs -32
 LDLIBS=-m elf_i386
 
-PROGS=hello args numargs strlen
+PROGS=hello args numargs strlen cat
 all: $(PROGS)
 
 % : %.s
