@@ -25,4 +25,15 @@ Chapter 4
 	power.s
 	factorial.s
 
+Pre - Chapter 5
+---------------
+Chapter 5 has a monster of a long example. I would have preferred smaller
+examples myself. But then I liked the way K&R did things.
+Here are some small examples I would have enjoyed doing. (So I did them)
+
+	Small Examples/
+	hello.s		- prints "hello world to stdout"
+	numargs.s	- introduces the number of arguments, argc
+	strlen.s	- returns the length of a c-style string
+	args.s		- prints out all the command line arguments argv
 
