@@ -9,6 +9,11 @@ Here is the source for some of the examples in the book:
 
 The book's examples are for 32 bit (i386) Linux.  
 64 bit adapted examples can be found in the x86_64 folder.
+ARM versions in the arm folder.
+
+Note about ARM - I've only tested these on the Raspberry Pi and my 
+Nokia N9 phone. Cross compiling from my laptop also created binaries 
+that worked great on both, so far.
 
 Chapter 3
 ---------
@@ -21,6 +26,3 @@ Chapter 4
 	factorial.s
 
 
-ps. If I'm slow uploading the code, that's because I refuse to load
-examples that I have not read and feel that I've understood the 
-relevant section.
