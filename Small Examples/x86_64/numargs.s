@@ -11,6 +11,6 @@
 .globl _start
 _start:
 	movq $0, %rax
-	movq (%rsp,%rax, 8), %rbx
-	movq $1, %rax
-	int $0x80
+	movq (%rsp,%rax, 8), %rdi
+	movq $0x3c, %rax
+	syscall

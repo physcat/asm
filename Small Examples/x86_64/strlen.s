@@ -10,9 +10,9 @@ _start:
 	call strlen
 	addq $8, %rsp
 
-	movq %rax, %rbx	# use strlen as exit code 
-	movq $1, %rax
-	int $0x80
+	movq %rax, %rdi	# use strlen as exit code 
+	movq $0x3c, %rax
+	syscall
 
 .type strlen, @function
 strlen:
