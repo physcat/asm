@@ -48,5 +48,8 @@ loop_exit:
 # %rbx is the status code for the exit system call
 # and it already has the maximum number
 
-	movq $1, %rax					#1 is the exit() syscall
-    int  $0x80
+# well use to be for 32 bit - now it needs to be in %rdi
+
+	movq %rbx, %rdi
+	movq $0x3c, %rax					#60 or 0x32 is the exit() syscall
+    syscall
