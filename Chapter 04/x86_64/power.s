@@ -35,17 +35,17 @@ _start:
 	call power			#call the function
 	addq $16, %rsp		#move the stack pointer back
 	
-	pop %rbx			#The second answer is already
-						#in %rax. We saved the
+	pop %rdi			#The second answer is already
+						#in %rdi. We saved the
 						#first answer onto the stack,
 						#so now we can just pop it
 						#out into %rbx
 	
-	addq   %rax, %rbx	#add them together
-						#the result is in %rbx
+	addq   %rax, %rdi	#add them together
+						#the result is in %rdi
 	
-	movq   $1, %rax		#exit (%rbx is returned)
-	int    $0x80
+	movq   $0x3c, %rax		#exit (%rdi is returned)
+	syscall
 
 #PURPOSE:   This function is used to compute
 #           the value of a number raised to

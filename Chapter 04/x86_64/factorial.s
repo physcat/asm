@@ -20,11 +20,11 @@ _start:
 	call  factorial			#run the factorial function
 	addq  $8, %rsp			#Scrubs the parameter that was pushed on
 							#the stack
-	movq  %rax, %rbx		#factorial returns the answer in %eax, but
-							#we want it in %ebx to send it as our exit
+	movq  %rax, %rdi		#factorial returns the answer in %eax, but
+							#we want it in %edi to send it as our exit
 							#status
-	movq  $1, %rax			#call the kernel's exit function
-	int   $0x80
+	movq  $0x3c, %rax			#call the kernel's exit function
+	syscall
 
 
 #This is the actual function definition
