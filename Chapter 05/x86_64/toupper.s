@@ -19,11 +19,11 @@
 #######CONSTANTS########
 
 #system call numbers
-.equ SYS_OPEN, 5
-.equ SYS_WRITE, 4
-.equ SYS_READ, 3
-.equ SYS_CLOSE, 6
-.equ SYS_EXIT, 1
+.equ SYS_OPEN, 2
+.equ SYS_WRITE, 1
+.equ SYS_READ, 0
+.equ SYS_CLOSE, 3
+.equ SYS_EXIT, 0x3c
 
 #options for open (look at
 #/usr/include/asm/fcntl.h for
@@ -40,8 +40,6 @@
 .equ STDERR, 2
 
 #system call interrupt
-.equ LINUX_SYSCALL, 0x80
-
 .equ END_OF_FILE, 0		#This is the return value
 						#of read which means we've
 						#hit the end of the file
@@ -82,54 +80,54 @@ open_files:
 open_fd_in:
 ###OPEN INPUT FILE###
 #open syscall
-movl  $SYS_OPEN, %eax
-#input filename into %ebx
-movl  ST_ARGV_1(%rbp), %ebx
+movq  $SYS_OPEN, %rax
+#input filename into %rdi
+movq  ST_ARGV_1(%rbp), %rdi
 #read-only flag
-movl  $O_RDONLY, %ecx
+movq  $O_RDONLY, %rsi
 #this doesn't really matter for reading
-movl  $0666, %edx
+movq  $0666, %rdx
 #call Linux
-int   $LINUX_SYSCALL
+syscall
 
 store_fd_in:
 #save the given file descriptor
-movl  %eax, ST_FD_IN(%rbp)
+movq  %rax, ST_FD_IN(%rbp)
 
 open_fd_out:
 ###OPEN OUTPUT FILE###
 #open the file
-movl  $SYS_OPEN, %eax
-#output filename into %ebx
-movl  ST_ARGV_2(%rbp), %ebx
+movq  $SYS_OPEN, %rax
+#output filename into %rdi
+movq  ST_ARGV_2(%rbp), %rdi
 #flags for writing to the file
-movl  $O_CREAT_WRONLY_TRUNC, %ecx
+movq  $O_CREAT_WRONLY_TRUNC, %rsi
 #permission set for new file (if it's created)
-movl  $0666, %edx
+movq  $0666, %rdx
 #call Linux
-int   $LINUX_SYSCALL
+syscall
 
 store_fd_out:
 #store the file descriptor here
-movl  %eax, ST_FD_OUT(%rbp)
+movq  %rax, ST_FD_OUT(%rbp)
 
 ###BEGIN MAIN LOOP###
 read_loop_begin:
 
 ###READ IN A BLOCK FROM THE INPUT FILE###
-movl  $SYS_READ, %eax
+movq  $SYS_READ, %rax
 #get the input file descriptor
-movl  ST_FD_IN(%rbp), %ebx
+movq  ST_FD_IN(%rbp), %rdi
 #the location to read into
-movl  $BUFFER_DATA, %ecx
+movq  $BUFFER_DATA, %rsi
 #the size of the buffer
-movl  $BUFFER_SIZE, %edx
-#Size of buffer read is returned in %eax
-int   $LINUX_SYSCALL
+movq  $BUFFER_SIZE, %rdx
+#Size of buffer read is returned in %rax
+syscall
 
 ###EXIT IF WE'VE REACHED THE END###
 #check for end of file marker
-cmpl $END_OF_FILE, %eax
+cmpq $END_OF_FILE, %rax
 #if found or on error, go to the end
 jle   end_loop
 
@@ -143,13 +141,13 @@ add  $8, %rsp         #restore %esp
 
 ###WRITE THE BLOCK OUT TO THE OUTPUT FILE###
 #size of the buffer
-movl  %eax, %edx
-movl  $SYS_WRITE, %eax
+movq  %rax, %rdx
+movq  $SYS_WRITE, %rax
 #file to use
-movl  ST_FD_OUT(%rbp), %ebx
+movq  ST_FD_OUT(%rbp), %rdi
 #location of the buffer
-movl  $BUFFER_DATA, %ecx
-int   $LINUX_SYSCALL
+movq  $BUFFER_DATA, %rsi
+syscall
 
 ###CONTINUE THE LOOP###
 jmp   read_loop_begin
@@ -159,18 +157,18 @@ end_loop:
 #NOTE - we don't need to do error checking
 #       on these, because error conditions
 #       don't signify anything special here
-movl  $SYS_CLOSE, %eax
-movl  ST_FD_OUT(%rbp), %ebx
-int   $LINUX_SYSCALL
+movq  $SYS_CLOSE, %rax
+movq  ST_FD_OUT(%rbp), %rdi
+syscall
 
-movl  $SYS_CLOSE, %eax
-movl  ST_FD_IN(%rbp), %ebx
-int   $LINUX_SYSCALL
+movq  $SYS_CLOSE, %rax
+movq  ST_FD_IN(%rbp), %rdi
+syscall
 
 ###EXIT###
-movl  $SYS_EXIT, %eax
-movl  $0, %ebx
-int   $LINUX_SYSCALL
+movq  $SYS_EXIT, %rax
+movq  $0, %rdi
+syscall
 
 
 #PURPOSE:   This function actually does the
@@ -202,19 +200,19 @@ int   $LINUX_SYSCALL
 .equ  UPPER_CONVERSION, 'A' - 'a'
 
 ###STACK STUFF###
-.equ  ST_BUFFER_LEN, 8 #Length of buffer
-.equ  ST_BUFFER, 12    #actual buffer
+.equ  ST_BUFFER_LEN, 16 #Length of buffer
+.equ  ST_BUFFER, 24    #actual buffer
 convert_to_upper:
 push %rbp
 movq  %rsp, %rbp
 
 ###SET UP VARIABLES###
-movl  ST_BUFFER(%rbp), %eax
-movl  ST_BUFFER_LEN(%rbp), %ebx
-movl  $0, %edi
+movq  ST_BUFFER(%rbp), %rax
+movq  ST_BUFFER_LEN(%rbp), %rbx
+movq  $0, %rdi
 #if a buffer with zero length was given
 #to us, just leave
-cmpl  $0, %ebx
+cmpq  $0, %rbx
 je    end_convert_loop
 
 convert_loop:
@@ -233,8 +231,8 @@ addb  $UPPER_CONVERSION, %cl
 #and store it back
 movb  %cl, (%eax,%edi,1)
 next_byte:
-incl  %edi              #next byte
-cmpl  %edi, %ebx        #continue unless
+incq  %rdi              #next byte
+cmpq  %rdi, %rbx        #continue unless
                        #we've reached the
                        #end
 jne   convert_loop
