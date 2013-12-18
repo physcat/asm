@@ -43,4 +43,6 @@ Chapter 5
 ---------
 	 toupper.s
 
-
+Chapter 6
+---------
+Reading and writing basic records.
